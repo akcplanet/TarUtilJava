@@ -10,6 +10,7 @@ import java.util.zip.ZipOutputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -52,14 +53,14 @@ public class XmlUpdateNuggetService {
 						Document doc = docBuilder.parse(file.getAbsolutePath());
 
 						NodeList nodeCUSIP = doc.getElementsByTagName(NuggetField.CUSIP.nugget());
-						if (isNullOrEmpty(nugget.getCusip()) && nodeCUSIP.getLength() > 0) {
+						if (!isNullOrEmpty(nugget.getCusip()) && nodeCUSIP.getLength() > 0) {
 							for (int i = 0; i < nodeCUSIP.getLength(); i++) {
 								nodeCUSIP.item(i).setTextContent(nugget.getCusip());
 							}
 						}
 
 						NodeList nodeINVNUM = doc.getElementsByTagName(NuggetField.INVNUM.nugget());
-						if (isNullOrEmpty(nugget.getInvnum()) && nodeINVNUM.getLength() > 0) {
+						if (!isNullOrEmpty(nugget.getInvnum()) && nodeINVNUM.getLength() > 0) {
 							Integer result = Integer.valueOf(nugget.getInvnum()).intValue();
 							result = result + j;
 							for (int i = 0; i < nodeINVNUM.getLength(); i++) {
@@ -69,20 +70,21 @@ public class XmlUpdateNuggetService {
 
 						NodeList nodeportfolioname = doc
 								.getElementsByTagName(NuggetField.PORTFOLIOS_PORTFOLIO_NAME.nugget());
-						if (isNullOrEmpty(nugget.getPortfoliosPortfolioName()) && nodeportfolioname.getLength() > 0) {
+						if (!isNullOrEmpty(nugget.getPortfoliosPortfolioName()) && nodeportfolioname.getLength() > 0) {
 							for (int i = 0; i < nodeportfolioname.getLength(); i++) {
 								nodeportfolioname.item(i).setTextContent(nugget.getPortfoliosPortfolioName());
 							}
 						}
 
 						NodeList nodetouchcount = doc.getElementsByTagName(NuggetField.TOUCH_COUNT.nugget());
-						if (isNullOrEmpty(nugget.getTouchCount()) && nodetouchcount.getLength() > 0) {
-							for (int i = 0; i < nodeportfolioname.getLength(); i++) {
-								nodeportfolioname.item(i).setTextContent(nugget.getTouchCount());
+						if (!isNullOrEmpty(nugget.getTouchCount()) && nodetouchcount.getLength() > 0) {
+							for (int i = 0; i < nodetouchcount.getLength(); i++) {
+								nodetouchcount.item(i).setTextContent(nugget.getTouchCount());
 							}
 						}
 						TransformerFactory transformerFactory = TransformerFactory.newInstance();
 						Transformer transformer = transformerFactory.newTransformer();
+						transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 						DOMSource source = new DOMSource(doc);
 						new File(path).mkdirs();
 						StreamResult result = new StreamResult(new File(path + "/" + filename));
@@ -105,6 +107,7 @@ public class XmlUpdateNuggetService {
 				fosgz.close();
 				new File(nugget.getOutputFolderPath() + foldername + ".tar").delete();
 			}
+			System.out.println("\nXML TAR GZ Created Successfully..");
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (TransformerException e) {
